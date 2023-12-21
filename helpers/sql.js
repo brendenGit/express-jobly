@@ -35,4 +35,32 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
-module.exports = { sqlForPartialUpdate };
+
+/** This helper function returns the paramters for a WHERE clause
+ * @param {object} filters - An object of query strings for filtering
+ * @returns {object} An object with the where clause and the values for the clause
+ *                  Example: { setWhere: '"handle" LIKE $1', values: [ '%net%' ]  
+ */
+function sqlForFiltering(filters) {
+  const keys = Object.keys(filters);
+
+  const cols = keys.map((colName, idx) => {
+    if (colName === 'minEmployees') {
+      return `"num_employees">=$${idx + 1}`
+    } else if (colName === 'maxEmployees') {
+      return `"num_employees"<=$${idx + 1}`
+    } else if (colName === 'name') {
+      return `"handle" LIKE $${idx + 1}`
+    }
+  });
+
+  return {
+    setWhere: cols.join(" AND "),
+    values: keys.map(key => (key === 'name' ? `%${filters[key]}%` : filters[key])),
+  };
+}
+
+module.exports = {
+  sqlForPartialUpdate,
+  sqlForFiltering
+};
