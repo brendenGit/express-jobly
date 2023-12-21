@@ -55,7 +55,6 @@ class Company {
    * */
 
   static async findAll(filters) {
-    console.log(filters);
     if (filters) {
       const someValuesPresent = acceptedFilters.some(filter => Object.keys(filters).includes(filter));
 
