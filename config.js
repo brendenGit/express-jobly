@@ -19,6 +19,7 @@ function getDatabaseConfig() {
       host: process.env.DB_HOST,
       port: parseInt(process.env.DB_PORT, 10),
       database: process.env.DB_TEST_NAME,
+      connectionTimeoutMillis: 10000
     }
     :
     {
