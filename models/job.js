@@ -22,10 +22,7 @@ class Job {
             `INSERT INTO jobs
            (title, salary, equity, company_handle)
            VALUES ($1, $2, $3, $4)
-           RETURNING title, 
-                    salary, 
-                    equity, 
-                    company_handle AS "companyHandle"`,
+           RETURNING title, salary, equity, company_handle AS "companyHandle"`,
             [
                 title,
                 salary,
@@ -33,7 +30,6 @@ class Job {
                 companyHandle
             ],
         );
-        result.rows[0].equity = parseFloat(result.rows[0].equity);
         const job = result.rows[0];
 
         return job;
@@ -53,7 +49,7 @@ class Job {
                     equity,
                     company_handle AS "companyHandle"
             FROM jobs
-            ORDER BY id`
+            ORDER BY title`
         )
         return jobsRes.rows;
     }
@@ -66,7 +62,8 @@ class Job {
 
     static async getCompanyJobs(company_handle) {
         const jobsRes = await db.query(
-            `SELECT title,
+            `SELECT id,
+                    title,
                     salary,
                     equity
             FROM jobs
@@ -75,7 +72,7 @@ class Job {
 
         const jobs = jobsRes.rows;
 
-        if (jobs.length === 0) throw new NotFoundError(`No jobs found for: ${company_handle}`);
+        if (!jobs) throw new NotFoundError(`No jobs found for: ${handle}`);
 
         return jobs;
     }
@@ -146,7 +143,7 @@ class Job {
         const result = await db.query(
             `DELETE
            FROM jobs
-           WHERE id = $1
+           WHERE handle = $1
            RETURNING id, title`,
             [id]);
         const job = result.rows[0];
