@@ -1,6 +1,6 @@
 "use strict";
 
-/** Routes for companies. */
+/** Routes for jobs. */
 
 const jsonschema = require("jsonschema");
 const express = require("express");
@@ -9,17 +9,17 @@ const { BadRequestError } = require("../expressError");
 const { ensureLoggedIn, ensureCorrectUser } = require("../middleware/auth");
 const Company = require("../models/company");
 
-const companyNewSchema = require("../schemas/companyNew.json");
-const companyUpdateSchema = require("../schemas/companyUpdate.json");
+const jobNewSchema = require("../schemas/jobNew.json");
+const jobUpdateSchema = require("../schemas/jobUpdate.json");
 
 const router = new express.Router();
 
 
-/** POST / { company } =>  { company }
+/** POST / { job } =>  { job }
  *
- * company should be { handle, name, description, numEmployees, logoUrl }
+ * job should be { title, salary, equity, companyHandle }
  *
- * Returns { handle, name, description, numEmployees, logoUrl }
+ * Returns { title, salary, equity, companyHandle }
  *
  * Authorization required: login
  */
@@ -52,21 +52,12 @@ router.post("/", ensureLoggedIn, ensureCorrectUser, async function (req, res, ne
 
 router.get("/", async function (req, res, next) {
   try {
-    const acceptedFilters = ['name', 'minEmployees', 'maxEmployees'];
-    const filters = req.query;
-    if (Object.keys(filters).length !== 0) {
-      console.log('inside filters check');
-      const someValuesPresent = acceptedFilters.some(filter => Object.keys(filters).includes(filter));
-      if (!someValuesPresent) throw new BadRequestError(`Invalid filters!`);
-
-      if (filters.minEmployees && filters.maxEmployees) {
-        if(parseInt(filters['minEmployees']) > parseInt(filters['maxEmployees'])) {
-          throw new BadRequestError('Invalid filters. Min cannot be greater than max!');
-        }
-      }
-    }
-    const companies = await Company.findAll(filters);
-
+    let companies;
+    if(Object.keys(req.query).length === 0) {
+      companies = await Company.findAll();
+    } else {
+      companies = await Company.findAll(req.query);
+    } 
     return res.json({ companies });
   } catch (err) {
     return next(err);

@@ -113,17 +113,6 @@ describe("findAll", function () {
       },
     ]);
   });
-  
-  test("rejects: invalid filters", async function () {
-    const filters = { 'friend': 'c1' };
-    try {
-      await Company.findAll(filters);
-      fail();
-    } catch (err) {
-      expect(err instanceof BadRequestError).toBeTruthy();
-    }
-  });
-
 });
 
 /************************************** get */

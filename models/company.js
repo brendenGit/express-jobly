@@ -5,8 +5,6 @@ const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
 const { sqlForPartialUpdate, sqlForFiltering } = require("../helpers/sql");
 
-const acceptedFilters = ['name', 'minEmployees', 'maxEmployees'];
-
 /** Related functions for companies. */
 
 class Company {
@@ -55,17 +53,7 @@ class Company {
    * */
 
   static async findAll(filters) {
-    if (filters) {
-      const someValuesPresent = acceptedFilters.some(filter => Object.keys(filters).includes(filter));
-
-      if (!someValuesPresent) throw new BadRequestError(`Invalid filters!`);
-    
-      if (Object.keys(filters).includes('minEmployees') && Object.keys(filters).includes('maxEmployees')) {
-        if(parseInt(filters['minEmployees']) > parseInt(filters['maxEmployees'])) {
-          throw new BadRequestError('Invalid filters. Min cannot be greater than max!');
-        }
-      }
-
+    if (Object.keys(filters).length !== 0) {
       const { setWhere, values } = sqlForFiltering(filters);
 
       const querySql =

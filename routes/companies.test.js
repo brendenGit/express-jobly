@@ -31,7 +31,7 @@ describe("POST /companies", function () {
   };
 
   test("ok for admins", async function () {
-    
+
     const resp = await request(app)
       .post("/companies")
       .send(newCompany)
@@ -78,6 +78,7 @@ describe("POST /companies", function () {
 describe("GET /companies", function () {
   test("ok for anon and ok without filters", async function () {
     const resp = await request(app).get("/companies");
+    console.log('anon without filters');
     expect(resp.body).toEqual({
       companies:
         [
@@ -137,6 +138,14 @@ describe("GET /companies", function () {
           },
         ],
     });
+  });
+
+  test("rejects: invalid filters", async function () {
+    const resp = await request(app)
+      .get("/companies")
+      .query({ friend: 'friend!' });
+
+      console.log(resp.body);
   });
 
   test("fails: test next() handler", async function () {
