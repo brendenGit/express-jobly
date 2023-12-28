@@ -31,7 +31,6 @@ class Job {
             ],
         );
         const job = result.rows[0];
-
         return job;
     }
 
@@ -48,8 +47,7 @@ class Job {
                     salary,
                     equity,
                     company_handle AS "companyHandle"
-            FROM jobs
-            ORDER BY title`
+            FROM jobs`
         )
         return jobsRes.rows;
     }
@@ -62,8 +60,7 @@ class Job {
 
     static async getCompanyJobs(company_handle) {
         const jobsRes = await db.query(
-            `SELECT id,
-                    title,
+            `SELECT title,
                     salary,
                     equity
             FROM jobs
@@ -72,7 +69,7 @@ class Job {
 
         const jobs = jobsRes.rows;
 
-        if (!jobs) throw new NotFoundError(`No jobs found for: ${handle}`);
+        if (jobs.length === 0) throw new NotFoundError(`No jobs found for: ${company_handle}`);
 
         return jobs;
     }
@@ -112,11 +109,8 @@ class Job {
      */
 
     static async update(id, data) {
-        const { setCols, values } = sqlForPartialUpdate(
-            data,
-            {
-                companyHandle: "company_handle"
-            });
+        const { setCols, values } = sqlForPartialUpdate(data, {})
+        
         const idVarIdx = "$" + (values.length + 1);
 
         const querySql = `UPDATE jobs 
@@ -143,7 +137,7 @@ class Job {
         const result = await db.query(
             `DELETE
            FROM jobs
-           WHERE handle = $1
+           WHERE id = $1
            RETURNING id, title`,
             [id]);
         const job = result.rows[0];
