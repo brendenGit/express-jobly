@@ -81,27 +81,6 @@ describe("findAll", function () {
 /************************************** get */
 
 describe("get", function () {
-    test("getCompanyJobs works", async function () {
-        let jobs = await Job.getCompanyJobs("c1");
-        expect(jobs).toEqual([
-            {
-                title: "Software Engineer 1",
-                salary: 150000,
-                equity: 0.25,
-            },
-            {
-                title: "Software Engineer 2",
-                salary: 180000,
-                equity: 0.5,
-            },
-            {
-                title: "Senior Software Engineer",
-                salary: 220000,
-                equity: 0.75,
-            },
-        ]);
-    });
-
     test("get job by id", async function () {
         let job = await Job.get(1);
         expect(job).toEqual({
@@ -111,16 +90,7 @@ describe("get", function () {
             companyHandle: "c1"
         })
     })
-
-    test("not found if no jobs with company", async function () {
-        try {
-            await Job.getCompanyJobs("c3");
-            fail();
-        } catch (err) {
-            expect(err instanceof NotFoundError).toBeTruthy();
-        }
-    });
-});
+})
 
 /************************************** update */
 

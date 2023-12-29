@@ -55,7 +55,6 @@ router.get("/", async function (req, res, next) {
     const acceptedFilters = ['name', 'minEmployees', 'maxEmployees'];
     const filters = req.query;
     if (Object.keys(filters).length !== 0) {
-      console.log('inside filters check');
       const someValuesPresent = acceptedFilters.some(filter => Object.keys(filters).includes(filter));
       if (!someValuesPresent) throw new BadRequestError(`Invalid filters!`);
 

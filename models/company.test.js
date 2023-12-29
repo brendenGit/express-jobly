@@ -60,6 +60,7 @@ describe("create", function () {
 
 describe("findAll", function () {
   test("works: no filter", async function () {
+    console.log('passing in no filters');
     let companies = await Company.findAll();
     expect(companies).toEqual([
       {
@@ -87,7 +88,7 @@ describe("findAll", function () {
   });
 
   test("works: with all filters name + minEmployees + maxEmployees", async function () {
-    const filters = { 'name': 'c', 'minEmployees': 1, 'maxEmployees': 3  };
+    const filters = { 'name': 'c', 'minEmployees': 1, 'maxEmployees': 3 };
     let companies = await Company.findAll(filters);
     expect(companies).toEqual([
       {
@@ -121,11 +122,34 @@ describe("get", function () {
   test("works", async function () {
     let company = await Company.get("c1");
     expect(company).toEqual({
-      handle: "c1",
-      name: "C1",
-      description: "Desc1",
+      handle: 'c1',
+      name: 'C1',
+      description: 'Desc1',
       numEmployees: 1,
-      logoUrl: "http://c1.img",
+      logoUrl: 'http://c1.img',
+      jobs: [
+        {
+          id: 1,
+          title: 'Software Engineer 1',
+          salary: 150000,
+          equity: 0.25,
+          companyHandle: 'c1'
+        },
+        {
+          id: 2,
+          title: 'Software Engineer 2',
+          salary: 180000,
+          equity: 0.5,
+          companyHandle: 'c1'
+        },
+        {
+          id: 3,
+          title: 'Senior Software Engineer',
+          salary: 220000,
+          equity: 0.75,
+          companyHandle: 'c1'
+        }
+      ]
     });
   });
 

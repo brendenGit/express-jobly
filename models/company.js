@@ -53,24 +53,26 @@ class Company {
    * */
 
   static async findAll(filters) {
-    if (Object.keys(filters).length !== 0) {
-      const { setWhere, values } = sqlForFiltering(filters);
+    if (filters !== undefined) {
+      if (Object.keys(filters).length !== 0) {
+        const { setWhere, values } = sqlForFiltering(filters);
 
-      const querySql =
-        `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           WHERE ${setWhere}
-           ORDER BY name`;
-      const result = await db.query(querySql, [...values]);
+        const querySql =
+          `SELECT handle,
+                    name,
+                    description,
+                    num_employees AS "numEmployees",
+                    logo_url AS "logoUrl"
+             FROM companies
+             WHERE ${setWhere}
+             ORDER BY name`;
+        const result = await db.query(querySql, [...values]);
 
-      const companies = result.rows;
-      if (companies.length === 0) throw new NotFoundError(`No comipanies found`);
+        const companies = result.rows;
+        if (companies.length === 0) throw new NotFoundError(`No comipanies found`);
 
-      return companies;
+        return companies;
+      }
     } else {
       const companiesRes = await db.query(
         `SELECT handle,
@@ -94,22 +96,34 @@ class Company {
    **/
 
   static async get(handle) {
-    const companyRes = await db.query(
-      `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           WHERE handle = $1`,
-      [handle]);
+    const companyQuery = `
+      SELECT handle,
+             name,
+             description,
+             num_employees AS "numEmployees",
+             logo_url AS "logoUrl"
+      FROM companies
+      WHERE handle = $1`;
 
+    const jobQuery = `
+      SELECT id,
+             title,
+             salary,
+             equity,
+             company_handle AS "companyHandle"
+      FROM jobs
+      WHERE company_handle = $1`;
+
+    const [companyRes, jobRes] = await Promise.all([db.query(companyQuery, [handle]), db.query(jobQuery, [handle])]);
     const company = companyRes.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
 
+    company.jobs = jobRes.rows;
+    
     return company;
   }
+
 
   /** Update company data with `data`.
    *

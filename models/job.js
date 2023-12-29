@@ -42,36 +42,31 @@ class Job {
      * */
 
     static async findAll(filters) {
-        const jobsRes = await db.query(
-            `SELECT title,
-                    salary,
-                    equity,
-                    company_handle AS "companyHandle"
-            FROM jobs`
-        )
-        return jobsRes.rows;
-    }
+        if (filters) {
+            const { setWhere, values } = sqlForFiltering(filters);
 
+            const querySql =
+                `SELECT title,
+                          salary,
+                          equity,
+                          company_handle AS "companyHandle"
+                   FROM jobs
+                   WHERE ${setWhere}`;
+            const result = await db.query(querySql, [...values]);
+            const jobs = result.rows;
+            if (jobs.length === 0) throw new NotFoundError(`No jobs found`);
 
-    /** Given a company handle, return jobs from that company.
-     *
-     * 
-     **/
-
-    static async getCompanyJobs(company_handle) {
-        const jobsRes = await db.query(
-            `SELECT title,
-                    salary,
-                    equity
-            FROM jobs
-            WHERE company_handle = $1`,
-            [company_handle]);
-
-        const jobs = jobsRes.rows;
-
-        if (jobs.length === 0) throw new NotFoundError(`No jobs found for: ${company_handle}`);
-
-        return jobs;
+            return jobs;
+        } else {
+            const jobsRes = await db.query(
+                `SELECT title,
+                        salary,
+                        equity,
+                        company_handle AS "companyHandle"
+              FROM jobs`
+            )
+            return jobsRes.rows;
+        }
     }
 
     /** Given a company handle, return jobs from that company.
@@ -110,7 +105,7 @@ class Job {
 
     static async update(id, data) {
         const { setCols, values } = sqlForPartialUpdate(data, {})
-        
+
         const idVarIdx = "$" + (values.length + 1);
 
         const querySql = `UPDATE jobs 

@@ -50,13 +50,28 @@ function sqlForFiltering(filters) {
     } else if (colName === 'maxEmployees') {
       return `"num_employees"<=$${idx + 1}`
     } else if (colName === 'name') {
-      return `"handle" LIKE $${idx + 1}`
+      return `"handle" ILIKE $${idx + 1}`
+    } else if (colName === 'title') {
+      return `"title" ILIKE $${idx + 1}`
+    } else if (colName === 'minSalary') {
+      return `"salary">=$${idx + 1}`
+    } else if (colName === 'hasEquity') {
+      if(filters['hasEquity'] === true) {
+        filters['hasEquity'] = 0;
+        `"equity"!=$${idx + 1}`
+      }
     }
   });
 
   return {
     setWhere: cols.join(" AND "),
-    values: keys.map(key => (key === 'name' ? `%${filters[key]}%` : filters[key])),
+    values: keys.map((key) => {
+      if (key === 'name' || key === 'title') {
+        return `%${filters[key]}%`;
+      } else {
+        return filters[key];
+      }
+    }),
   };
 }
 

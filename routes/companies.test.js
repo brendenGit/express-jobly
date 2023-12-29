@@ -78,7 +78,6 @@ describe("POST /companies", function () {
 describe("GET /companies", function () {
   test("ok for anon and ok without filters", async function () {
     const resp = await request(app).get("/companies");
-    console.log('anon without filters');
     expect(resp.body).toEqual({
       companies:
         [
@@ -145,7 +144,8 @@ describe("GET /companies", function () {
       .get("/companies")
       .query({ friend: 'friend!' });
 
-      console.log(resp.body);
+    expect(resp.status).toBe(400);
+    console.log(resp.body);
   });
 
   test("fails: test next() handler", async function () {
