@@ -54,17 +54,22 @@ router.get("/", async function (req, res, next) {
   try {
     const acceptedFilters = ['name', 'minEmployees', 'maxEmployees'];
     const filters = req.query;
+    let companies;
+
     if (Object.keys(filters).length !== 0) {
       const someValuesPresent = acceptedFilters.some(filter => Object.keys(filters).includes(filter));
       if (!someValuesPresent) throw new BadRequestError(`Invalid filters!`);
-
       if (filters.minEmployees && filters.maxEmployees) {
-        if(parseInt(filters['minEmployees']) > parseInt(filters['maxEmployees'])) {
+        if (parseInt(filters['minEmployees']) > parseInt(filters['maxEmployees'])) {
           throw new BadRequestError('Invalid filters. Min cannot be greater than max!');
         }
       }
+      companies = await Company.findAll(filters);
+
+      return res.json({ companies });
     }
-    const companies = await Company.findAll(filters);
+
+    companies = await Company.findAll();
 
     return res.json({ companies });
   } catch (err) {

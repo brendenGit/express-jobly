@@ -145,7 +145,6 @@ describe("GET /companies", function () {
       .query({ friend: 'friend!' });
 
     expect(resp.status).toBe(400);
-    console.log(resp.body);
   });
 
   test("fails: test next() handler", async function () {
@@ -165,6 +164,7 @@ describe("GET /companies", function () {
 describe("GET /companies/:handle", function () {
   test("works for anon", async function () {
     const resp = await request(app).get(`/companies/c1`);
+    console.log(resp.body);
     expect(resp.body).toEqual({
       company: {
         handle: "c1",
@@ -172,6 +172,7 @@ describe("GET /companies/:handle", function () {
         description: "Desc1",
         numEmployees: 1,
         logoUrl: "http://c1.img",
+        jobs: expect.any(Array)
       },
     });
   });
@@ -185,6 +186,7 @@ describe("GET /companies/:handle", function () {
         description: "Desc2",
         numEmployees: 2,
         logoUrl: "http://c2.img",
+        jobs: expect.any(Array)
       },
     });
   });

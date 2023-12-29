@@ -52,6 +52,33 @@ describe("authenticate", function () {
   });
 });
 
+/************************************** apply */
+
+describe("apply", function () {
+  test("works", async function () {
+    const application = await User.apply("u1", 1);
+    expect(application).toEqual({ applied: 1 });
+  });
+
+  test("fails for invalid job", async function () {
+    try {
+      await User.apply("u1", 100000);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("fails for invalid user", async function () {
+    try {
+      await User.apply("u-1", 1);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
+
 /************************************** register */
 
 describe("register", function () {
@@ -112,18 +139,24 @@ describe("findAll", function () {
     const users = await User.findAll();
     expect(users).toEqual([
       {
-        username: "u1",
-        firstName: "U1F",
-        lastName: "U1L",
-        email: "u1@email.com",
-        isAdmin: false,
-      },
-      {
         username: "u2",
         firstName: "U2F",
         lastName: "U2L",
         email: "u2@email.com",
         isAdmin: false,
+        applications: [
+          null,
+        ]
+      },
+      {
+        username: "u1",
+        firstName: "U1F",
+        lastName: "U1L",
+        email: "u1@email.com",
+        isAdmin: false,
+        applications: [
+          null,
+        ]
       },
     ]);
   });
@@ -140,6 +173,9 @@ describe("get", function () {
       lastName: "U1L",
       email: "u1@email.com",
       isAdmin: false,
+      applications: [
+        null,
+      ]
     });
   });
 
@@ -215,7 +251,7 @@ describe("remove", function () {
   test("works", async function () {
     await User.remove("u1");
     const res = await db.query(
-        "SELECT * FROM users WHERE username='u1'");
+      "SELECT * FROM users WHERE username='u1'");
     expect(res.rows.length).toEqual(0);
   });
 

@@ -127,6 +127,39 @@ describe("POST /users", function () {
   });
 });
 
+/************************************** POST /users/:username/jobs/:id */
+
+describe("POST /users", function () {
+  test("ok for admins: apply for others", async function () {
+    const resp = await request(app)
+      .post("/users/u1/jobs/1")
+      .set("authorization", `Bearer ${u3Token}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({ "applied": "1" });
+  });
+
+  test("ok for user to apply for themselves", async function () {
+    const resp = await request(app)
+      .post("/users/u1/jobs/1")
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(201);
+    expect(resp.body).toEqual({ "applied": "1" });
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+      .post("/users/u1/jobs/1")
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("unauth for non-admin to apply for another person", async function () {
+    const resp = await request(app)
+      .post("/users/u1/jobs/1")
+      .set("authorization", `Bearer ${u2Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+});
+
 /************************************** GET /users */
 
 describe("GET /users", function () {
@@ -137,18 +170,24 @@ describe("GET /users", function () {
     expect(resp.body).toEqual({
       users: [
         {
-          username: "u1",
-          firstName: "U1F",
-          lastName: "U1L",
-          email: "user1@user.com",
-          isAdmin: false,
-        },
-        {
           username: "u2",
           firstName: "U2F",
           lastName: "U2L",
           email: "user2@user.com",
           isAdmin: false,
+          applications: [
+            null,
+          ]
+        },
+        {
+          username: "u1",
+          firstName: "U1F",
+          lastName: "U1L",
+          email: "user1@user.com",
+          isAdmin: false,
+          applications: [
+            null,
+          ]
         },
         {
           username: "u3",
@@ -156,6 +195,9 @@ describe("GET /users", function () {
           lastName: "U3L",
           email: "user3@user.com",
           isAdmin: true,
+          applications: [
+            null,
+          ]
         },
       ],
     });
@@ -200,6 +242,9 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: false,
+        applications: [
+          null,
+        ]
       },
     });
   });
@@ -215,6 +260,9 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: false,
+        applications: [
+          null,
+        ]
       },
     });
   });

@@ -11,6 +11,7 @@ const User = require("../models/user");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
 const userUpdateSchema = require("../schemas/userUpdate.json");
+const app = require("../app");
 
 const router = express.Router();
 
@@ -38,6 +39,26 @@ router.post("/", ensureLoggedIn, ensureCorrectUser, async function (req, res, ne
     const user = await User.register(req.body);
     const token = createToken(user);
     return res.status(201).json({ user, token });
+  } catch (err) {
+    return next(err);
+  }
+});
+
+/** POST /:username/jobs/:id { application }  => { username, jobId }
+ *
+ * Submits an application to a job (job_id) for a user. 
+ * Auth only the currently signed in user or for admin. 
+ *
+ * This returns the newly created application:
+ *  {application: applied}
+ *
+ **/
+
+router.post("/:username/jobs/:id", ensureLoggedIn, ensureCorrectUser, async function (req, res, next) {
+  try {
+    const { username, id } = req.params;
+    const application = await User.apply(username, id);
+    return res.status(201).json(application);
   } catch (err) {
     return next(err);
   }
